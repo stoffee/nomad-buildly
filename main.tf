@@ -1,26 +1,51 @@
-module "nomad" {
-  source = "nicholasjackson/hashicorp-suite/aws"
+provider "aws" {
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  region     = var.aws_region
+  #version    = ">= 2.60.0"
+}
 
-  namespace = var.namespace
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
-  min_servers = "1"
-  max_servers = "1"
-  min_agents  = "3"
-  max_agents  = "3"
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+#  version = "2.6.0"
 
-  subnets        = ["${aws_subnet.default.*.id}"]
-  vpc_id         = aws_vpc.default.id
-  key_name       = aws_key_pair.nomad.id
-  security_group = aws_security_group.allow_all.id
+  name                                   = "buildly-vpc"
+  cidr                                   = "10.0.0.0/16"
+  azs                                    = data.aws_availability_zones.available.names
+  private_subnets                        = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets                         = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  enable_nat_gateway                     = true
+  single_nat_gateway                     = true
+  enable_dns_hostnames                   = true
+  create_database_subnet_group           = true
+  create_database_internet_gateway_route = true
+  create_database_nat_gateway_route      = true
 
-  client_target_groups = ["${aws_alb_target_group.proxy.arn}", "${aws_alb_target_group.faas.arn}"]
-  server_target_groups = ["${aws_alb_target_group.nomad.arn}"]
+#  public_subnet_tags = {
+#    "kubernetes.io/cluster/buildly-${random_string.suffix.result}" = "shared"
+#    "kubernetes.io/role/elb"                                       = "1"
+#  }
+#
+#  private_subnet_tags = {
+#    "kubernetes.io/cluster/buildly-${random_string.suffix.result}" = "shared"
+#    "kubernetes.io/role/internal-elb"                              = "1"
+#  }
+}
 
-  consul_enabled        = true
+module "nomad-buildly" {
+  source                = "hashicorp/nomad-starter/aws"
+#  version               = "0.1.1"
+  allowed_inbound_cidrs = ["0.0.0.0/0"]
+  vpc_id                = module.vpc.vpc_id
   consul_version        = "1.8.5"
-  consul_join_tag_key   = "autojoin"
-  consul_join_tag_value = var.namespace
-
-  nomad_enabled = true
-  nomad_version = "0.12.7"
+  nomad_version         = "0.12.7"
+  owner                 = "cdunlap"
+  name_prefix           = "buildly"
+  key_name              = "cdunlap-aws"
+  nomad_servers         = 3
+  nomad_clients         = 3
 }
