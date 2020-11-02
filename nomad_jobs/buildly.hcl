@@ -14,6 +14,7 @@ job "buildly" {
 
       config {
         image = "buildly/buildly"
+        command = "bash /code/scripts/run-standalone-dev.sh"
       }
 
       resources {
@@ -32,7 +33,7 @@ job "buildly" {
 
         tags = [
           "traefik.tags=service",
-          "traefik.frontend.rule=PathPrefixStrip:/myapp",
+#          "traefik.frontend.rule=PathPrefixStrip:/",
         ]
 
         check {
