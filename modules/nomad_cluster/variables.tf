@@ -1,19 +1,6 @@
-variable "aws_access_key" {
-  description = "access key"
-}
-
-variable "aws_secret_key" {
-  description = "secret key"
-}
-
-variable "aws_region" {
-  default = "us-west-2"
-}
-
 variable "allowed_inbound_cidrs" {
   type        = list(string)
   description = "List of CIDR blocks to permit inbound Nomad access from"
- # default = "["0.0.0.0/0"]"
 }
 
 variable "bootstrap" {
@@ -38,18 +25,16 @@ variable "consul_cluster_version" {
 }
 
 variable "nomad_servers" {
-  default     = "3"
+  default     = "5"
   description = "number of Nomad instances"
 }
 
 variable "consul_version" {
   description = "Consul version"
-  default = "1.8.5"
 }
 
 variable "nomad_version" {
   description = "Nomad version"
-  default = "0.12.7"
 }
 
 variable "enable_connect" {
@@ -60,12 +45,12 @@ variable "enable_connect" {
 
 variable "instance_type" {
   default     = "m5.large"
-  description = "Instance type for Nomad instances"
+  description = "Instance type for Consul instances"
 }
 
 variable "key_name" {
   default     = "default"
-  description = "SSH key name for Nomad instances"
+  description = "SSH key name for Consul instances"
 }
 
 variable "name_prefix" {
@@ -78,6 +63,10 @@ variable "owner" {
 
 variable "public_ip" {
   type        = bool
-  default     = true
+  default     = false
   description = "should ec2 instance have public ip?"
+}
+
+variable "vpc_id" {
+  description = "VPC ID"
 }
