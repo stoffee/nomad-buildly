@@ -10,6 +10,6 @@ Check the status of the nomad<br>
 
 ```git clone https://github.com/stoffee/nomad-buildly.git```<br>
 `cd nomad-buildly/nomad_jobs`<br>
-`nomad job run traefik.hcl`<br>
-`nomad job run buildly_db.hcl`<br>
-`nomad job run buildly.hcl`<br>
+`nomad job run traefik.nomad`<br>
+`nomad job run buildly_db.nomad`<br>
+`nomad job run buildly.nomad`<br>

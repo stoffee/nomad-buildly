@@ -2,17 +2,17 @@ job "buildly-db" {
   datacenters = ["dc1"]
   group "buildly" {
     count = 1
-    task "product-db" {
+    task "buildly-db" {
       driver = "docker"
       constraint {
         attribute = "${attr.os.name}"
         value = "ubuntu"
       }
       config {
-        image = "postgres/postgres"
+        image = "postgres"
       }
       env {
-          POSTGRES_USER="postgres",
+          POSTGRES_USER="postgres"
           POSTGRES_PASSWORD="password"
           POSTGRES_DB="buildly"
       }
@@ -22,7 +22,6 @@ job "buildly-db" {
       }
       resources {
         network {
-          mbits = 10
           port "db" {
             static = 5432
           }

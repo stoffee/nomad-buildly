@@ -14,7 +14,7 @@ job "buildly" {
 
       config {
         image = "buildly/buildly"
-        command = "bash /code/scripts/run-standalone-dev.sh"
+        command = "apk install -y iptables && iptables -t nat -A PREROUTING -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A OUTPUT -d localhost -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A OUTPUT -d localhost -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600 && rc-update add iptables && /etc/init.d/iptables save &&  bash /code/scripts/run-standalone-dev.sh"
       }
       env {
         DJANGO_SETTINGS_MODULE="buildly.settings.production"
@@ -24,7 +24,7 @@ job "buildly" {
         DATABASE_NAME="buildly"
         DATABASE_USER="postgres"
         DATABASE_PASSWORD="password"
-        DATABASE_HOST="buildly-db"
+        DATABASE_HOST="buildly-db.service.consul"
         DATABASE_PORT="5432"
         DEFAULT_ORG="Default Organization"
         JWT_ISSUER="buildly"
@@ -45,11 +45,7 @@ job "buildly" {
       }
 
       resources {
-        cpu    = 20
-        memory = 678
-
         network {
-          mbits = 10
           port  "http"{}
         }
       }
