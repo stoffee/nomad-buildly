@@ -59,17 +59,3 @@ chmod -R 640 /etc/nomad.d/*
 
 systemctl enable nomad
 systemctl start nomad
-
-
-cat << SND > /etc/dnsmasq.d/consul
-# Enable forward lookup of the 'consul' domain:
-server=/consul/127.0.0.1#8600
-interface=docker0
-bind-interfaces
-SND
-
-systemctl daemon-reload
-sudo systemctl enable dnsmasq
-sudo systemctl restart dnsmasq
-
-echo 'nameserver 127.0.0.1' | tee -a /etc/resolv.conf

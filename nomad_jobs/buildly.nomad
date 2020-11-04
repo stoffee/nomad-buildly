@@ -14,7 +14,19 @@ job "buildly" {
 
       config {
         image = "buildly/buildly"
-        command = "apk add iptables && iptables -t nat -A PREROUTING -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A OUTPUT -d localhost -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600 && iptables -t nat -A OUTPUT -d localhost -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600 && rc-update add iptables && /etc/init.d/iptables save &&  bash /code/scripts/run-standalone-dev.sh"
+        command = [
+          "apk add dnsmasq",
+          "cat << SND > /etc/dnsmasq.d/consul
+          # Enable forward lookup of the 'consul' domain:
+          server=/consul/127.0.0.1#8600
+          interface=docker0
+          bind-interfaces
+          SND",
+          "systemctl daemon-reload",
+          "sudo systemctl enable dnsmasq",
+          "sudo systemctl restart dnsmasq",
+          "echo 'nameserver 127.0.0.1' | tee -a /etc/resolv.conf",
+          "bash /code/scripts/run-standalone-dev.sh" ]
       }
       env {
         DJANGO_SETTINGS_MODULE="buildly.settings.production"
