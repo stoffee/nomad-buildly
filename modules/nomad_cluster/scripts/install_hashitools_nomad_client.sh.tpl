@@ -8,6 +8,7 @@ apt-get update
 apt-get install -y consul=${consul_version}
 apt-get install -y nomad=${nomad_version}
 apt-get install -y docker.io
+apt-get install -y dnsmasq
 
 echo "Configuring system time"
 timedatectl set-timezone UTC
@@ -58,3 +59,15 @@ chmod -R 640 /etc/nomad.d/*
 
 systemctl enable nomad
 systemctl start nomad
+
+
+cat << SND > /etc/dnsmasq.d/consul
+# Enable forward lookup of the 'consul' domain:
+server=/consul/127.0.0.1#8600
+# interface=docker0
+bind-interfaces
+SND
+
+systemctl daemon-reload
+sudo systemctl enable dnsmasq
+sudo systemctl restart dnsmasq
